@@ -1,5 +1,5 @@
 from flask import *  
-app = Flask(__name__)  
+app = Flask(__name__,template_folder="template")  
 app.secret_key = "ayush"  
  
 @app.route('/')  
