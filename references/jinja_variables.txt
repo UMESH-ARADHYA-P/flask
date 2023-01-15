@@ -1,0 +1,102 @@
+The {{ name }} construct used in the template shown in Example 3-2 references a
+variable, a special placeholder that tells the template engine that the value that goes in
+that place should be obtained from data provided at the time the template is rendered.
+Jinja2 recognizes variables of any type, even complex types such as lists, dictionaries
+and objects. The following are some more examples of variables used in templates:
+<p>A value from a dictionary: {{ mydict['key'] }}.</p>
+<p>A value from a list: {{ mylist[3] }}.</p>
+<p>A value from a list, with a variable index: {{ mylist[myintvar] }}.</p>
+<p>A value from an object's method: {{ myobj.somemethod() }}.</p>
+Variables can be modified with filters, which are added after the variable name with a
+pipe character as separator. For example, the following template shows the name variable
+capitalized:
+Hello, {{ name|capitalize }}
+Table 3-1 lists some of the commonly used filters that come with Jinja2.
+Table 3-1. Jinja2 variable filters
+Filter name Description
+safe Renders the value without applying escaping
+capitalize Converts the first character of the value to uppercase and the rest to lowercase
+lower Converts the value to lowercase characters
+upper Converts the value to uppercase characters
+title Capitalizes each word in the value
+trim Removes leading and trailing whitespace from the value
+striptags Removes any HTML tags from the value before rendering
+The safe filter is interesting to highlight. By default Jinja2 escapes all variables for se‐
+curity purposes. For example, if a variable is set to the value '<h1>Hello</h1>', Jinja2
+The Jinja2 Template Engine | 23
+will render the string as '&lt;h1&gt;Hello&lt;/h1&gt;', which will cause the h1 ele‐
+ment to be displayed and not interpreted by the browser. Many times it is necessary to
+display HTML code stored in variables, and for those cases the safe filter is used.
+Never use the safe filter on values that aren’t trusted, such as text
+entered by users on web forms.
+The complete list of filters can be obtained from the official Jinja2 documentation.
+Control Structures
+Jinja2 offers several control structures that can be used to alter the flow of the template.
+This section introduces some of the most useful ones with simple examples.
+The following example shows how conditional statements can be entered in a template:
+{% if user %}
+ Hello, {{ user }}!
+{% else %}
+ Hello, Stranger!
+{% endif %}
+Another common need in templates is to render a list of elements. This example shows
+how this can be done with a for loop:
+<ul>
+ {% for comment in comments %}
+ <li>{{ comment }}</li>
+ {% endfor %}
+</ul>
+Jinja2 also supports macros, which are similar to functions in Python code. For example:
+{% macro render_comment(comment) %}
+ <li>{{ comment }}</li>
+{% endmacro %}
+<ul>
+ {% for comment in comments %}
+ {{ render_comment(comment) }}
+ {% endfor %}
+</ul>
+To make macros more reusable, they can be stored in standalone files that are then
+imported from all the templates that need them:
+{% import 'macros.html' as macros %}
+<ul>
+24 | Chapter 3: Templates
+ {% for comment in comments %}
+ {{ macros.render_comment(comment) }}
+ {% endfor %}
+</ul>
+Portions of template code that need to be repeated in several places can be stored in a
+separate file and included from all the templates to avoid repetition:
+{% include 'common.html' %}
+Yet another powerful way to reuse is through template inheritance, which is similar to
+class inheritance in Python code. First, a base template is created with the name
+base.html:
+<html>
+<head>
+ {% block head %}
+ <title>{% block title %}{% endblock %} - My Application</title>
+ {% endblock %}
+</head>
+<body>
+ {% block body %}
+ {% endblock %}
+</body>
+</html>
+Here the block tags define elements that a derived template can change. In this example,
+there are blocks called head, title, and body; note that title is contained by head. The
+following example is a derived template of the base template:
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+ {{ super() }}
+ <style>
+ </style>
+{% endblock %}
+{% block body %}
+<h1>Hello, World!</h1>
+{% endblock %}
+The extends directive declares that this template derives from base.html. This directive
+is followed by new definitions for the three blocks defined in the base template, which
+are inserted in the proper places. Note that the new definition of the head block, which
+is not empty in the base template, uses super() to retain the original contents. 
+Real-world usage of all the control structures presented in this section will be shown
+later, so you will have the opportunity to see how they work.
